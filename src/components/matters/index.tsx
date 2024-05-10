@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toast";
 import { SummaryCard } from "./SummaryCard";
 import { MattersTable } from "./MattersTable";
 
@@ -10,21 +10,32 @@ import {
   postMatter,
   fetchLawyer,
   fetchClient,
-} from "../../lib/apiService.ts";
+} from "../../lib/apiService";
 
-import { MatterDto } from "../types/matterTypes";
-
+import {
+  MatterDto,
+  MattersData,
+  Client,
+  SummaryData,
+  Lawyer,
+} from "../../types/matterTypes";
 
 export function Matters() {
-  const [summaryData, setSummaryData] = useState([]);
-  const [mattersData, setMattersData] = useState([]);
-  const [lawyersData, setLawyersData] = useState([]);
-  const [clientsData, setClientsData] = useState([]);
-  const { toast } = useToast()
+  const [summaryData, setSummaryData] = useState<SummaryData[]>([]);
+  const [mattersData, setMattersData] = useState<MattersData>({
+    currentPage: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+    data: [],
+  });
+  const [lawyersData, setLawyersData] = useState<Lawyer[]>([]);
+  const [clientsData, setClientsData] = useState<Client[]>([]);
+  const { toast } = useToast();
 
   useEffect(() => {
     loadSummaryData();
-    loadMatters();
+    loadMatters(mattersData.currentPage, mattersData.limit);
     loadClients();
     loadLawyers();
   }, []);
@@ -38,7 +49,7 @@ export function Matters() {
     }
   };
 
-  const loadMatters = async (page: 1, limit: 10) => {
+  const loadMatters = async (page = 1, limit = 10) => {
     try {
       const data = await fetchMatters({ page, limit });
       setMattersData(data);
@@ -63,19 +74,19 @@ export function Matters() {
     }
   };
 
-  const handlePagination = (page) => {
+  const handlePagination = (page: number) => {
     loadMatters(page);
   };
 
   const handlePostMatters = async (e: MatterDto) => {
     try {
       const data = await postMatter(e);
-      if(data) {
-        loadMatters()
-        loadSummaryData()
+      if (data) {
+        loadMatters();
+        loadSummaryData();
         toast({
           title: "Matter Added Successfully",
-        })
+        });
       }
     } catch (error) {
       console.log("Failed to fetch summary data:", error);
@@ -91,7 +102,7 @@ export function Matters() {
             clients={clientsData}
             lawyers={lawyersData}
             onPageChange={(e) => handlePagination(e)}
-            onAddMatter={e => handlePostMatters(e)}
+            onAddMatter={(e) => handlePostMatters(e)}
           />
         </div>
       </div>

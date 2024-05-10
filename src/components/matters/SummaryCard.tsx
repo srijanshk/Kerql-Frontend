@@ -1,6 +1,6 @@
-import { SummaryCardsProps } from '../types/matterTypes';
+import { SummaryCardsProps } from '../../types/matterTypes';
 
-export const SummaryCard = ({ summary }: SummaryCardProps) => {
+export const SummaryCard = ({ summary }: SummaryCardsProps) => {
   return (
     <div>
      <h2 className="text-2xl font-bold mb-4">Matter Summary</h2>   

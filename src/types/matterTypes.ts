@@ -3,7 +3,7 @@ export interface SummaryData {
   count: number;
 }
 
-export interface SummaryCardProps {
+export interface SummaryCardsProps {
   summary: SummaryData[];
 }
 
@@ -63,6 +63,14 @@ export interface MatterDto {
   description: string;
   client_id: number;
   lawyer_id: number;
+}
+
+export interface MatterDtoErrors {
+  matter_type?: string;
+  status?: string;
+  description?: string;
+  client_id?: string;
+  lawyer_id?: string;
 }
 
 export interface AddNewMatterProps {

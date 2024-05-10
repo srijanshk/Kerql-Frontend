@@ -14,12 +14,12 @@ import {
   PaginationContent,
   Pagination,
 } from "@/components/ui/pagination";
-import { MattersDataProps } from "../types/matterTypes";
+import { MattersDataProps } from "../../types/matterTypes";
 import { MatterForm } from "./MatterForm";
 
 
 export const MattersTable = ({ mattersData, clients, lawyers, onPageChange, onAddMatter }: MattersDataProps) => {
-  const { currentPage, totalPages, data } = mattersData;
+  const { currentPage = 1, totalPages = 1, data } = mattersData;
 
   const renderPagination = () => {
     let paginationItems = [];

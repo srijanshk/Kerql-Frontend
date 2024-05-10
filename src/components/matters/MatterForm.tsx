@@ -17,26 +17,31 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Client, Lawyer } from "../types/matterTypes";
-import { AddNewMatterProps } from "../types/matterTypes";
+import {
+  Client,
+  Lawyer,
+  AddNewMatterProps,
+  MatterDtoErrors,
+  MatterDto,
+} from "../../types/matterTypes";
 
 export const MatterForm = ({
   clients,
   lawyers,
   onAddMatter,
 }: AddNewMatterProps) => {
-  const [formData, setFormData] = useState({
-    client_id: "",
+  const [formData, setFormData] = useState<MatterDto>({
+    client_id: 0,
     matter_type: "",
-    lawyer_id: "",
+    lawyer_id: 0,
     status: "",
     description: "",
   });
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<MatterDtoErrors>({});
   const [isOpen, setIsOpen] = useState(false);
 
   const validateForm = () => {
-    let tempErrors = {};
+    let tempErrors: MatterDtoErrors = {};
     if (!formData.client_id) tempErrors.client_id = "Client name is required";
     if (!formData.matter_type)
       tempErrors.matter_type = "Matter type is required";
@@ -45,20 +50,23 @@ export const MatterForm = ({
     if (!formData.description)
       tempErrors.description = "Description is required";
     setErrors(tempErrors);
-    return Object.keys(tempErrors).length === 0;
+    return Object.values(tempErrors).every((value) => value === undefined);
   };
 
-  const handleChange = (
-    event: React.ChangeEvent<HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
-    const { id, value } = event.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
-    setErrors((prev) => ({ ...prev, [id]: null }));
-  };
-
-  const selectChange = (value: string | number, type: string) => {
+  const handleChange = (value: string | number, type: string) => {
     setFormData((prev) => ({ ...prev, [type]: value }));
     setErrors((prev) => ({ ...prev, [type]: null }));
+  };
+
+  const handleCancel = () => {
+    setFormData({
+      client_id: 0,
+      matter_type: "",
+      lawyer_id: 0,
+      status: "",
+      description: "",
+    });
+    setErrors({});
   };
 
   const handleSubmit = () => {
@@ -67,9 +75,9 @@ export const MatterForm = ({
       onAddMatter(formData);
       setIsOpen(false);
       setFormData({
-        client_id: "",
+        client_id: 0,
         matter_type: "",
-        lawyer_id: "",
+        lawyer_id: 0,
         status: "",
         description: "",
       });
@@ -82,7 +90,7 @@ export const MatterForm = ({
       <DialogTrigger asChild>
         <Button
           className="w-full sm:w-auto"
-          variant="primary"
+          variant="default"
           onClick={() => setIsOpen(true)}
         >
           Add New Matter
@@ -99,17 +107,19 @@ export const MatterForm = ({
                 Client Name
               </Label>
               <Select
-                id="clientName"
                 required
-                onValueChange={(e) => selectChange(Number(e), "client_id")}
-                value={formData.client_id}
+                onValueChange={(e) => handleChange(Number(e), "client_id")}
+                value={formData.client_id ? formData.client_id.toString() : ""}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a client" />
                 </SelectTrigger>
                 <SelectContent>
                   {clients?.map((client) => (
-                    <SelectItem key={client.client_id} value={client.client_id}>
+                    <SelectItem
+                      key={client.client_id}
+                      value={client.client_id.toString()}
+                    >
                       {client.name}
                     </SelectItem>
                   ))}
@@ -124,9 +134,8 @@ export const MatterForm = ({
                 Matter Type
               </Label>
               <Select
-                id="matterType"
                 required
-                onValueChange={(e) => selectChange(e, "matter_type")}
+                onValueChange={(e) => handleChange(e, "matter_type")}
                 value={formData.matter_type}
               >
                 <SelectTrigger>
@@ -135,7 +144,9 @@ export const MatterForm = ({
                 <SelectContent>
                   <SelectItem value="Litigation">Litigation</SelectItem>
                   <SelectItem value="Corporate">Corporate</SelectItem>
-                  <SelectItem value="Intellectual Property">Intellectual Property</SelectItem>
+                  <SelectItem value="Intellectual Property">
+                    Intellectual Property
+                  </SelectItem>
                   <SelectItem value="Real Estate">Real Estate</SelectItem>
                   <SelectItem value="Others">Others</SelectItem>
                 </SelectContent>
@@ -151,17 +162,19 @@ export const MatterForm = ({
                 Responsible Attorney
               </Label>
               <Select
-                id="responsibleAttorney"
                 required
-                onValueChange={(e) => selectChange(Number(e), "lawyer_id")}
-                value={formData.lawyer_id}
+                onValueChange={(e) => handleChange(Number(e), "lawyer_id")}
+                value={formData.lawyer_id ? formData.lawyer_id.toString() : ""}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a responsible attorney" />
                 </SelectTrigger>
                 <SelectContent>
                   {lawyers?.map((lawyer) => (
-                    <SelectItem key={lawyer.lawyer_id} value={lawyer.lawyer_id}>
+                    <SelectItem
+                      key={lawyer.lawyer_id}
+                      value={lawyer.lawyer_id.toString()}
+                    >
                       {lawyer.name}
                     </SelectItem>
                   ))}
@@ -176,9 +189,8 @@ export const MatterForm = ({
                 Status
               </Label>
               <Select
-                id="status"
                 required
-                onValueChange={(e) => selectChange(e, "status")}
+                onValueChange={(e) => handleChange(e, "status")}
                 value={formData.status}
               >
                 <SelectTrigger>
@@ -201,10 +213,9 @@ export const MatterForm = ({
             </Label>
             <Textarea
               className="min-h-[120px]"
-              id="description"
               placeholder="Enter a detailed description"
               required
-              onChange={handleChange}
+              onChange={(e) => handleChange(e.target.value, "description")}
               value={formData.description}
             />
             {errors.description && (
@@ -213,12 +224,12 @@ export const MatterForm = ({
           </div>
         </div>
         <div className="flex justify-end mt-6 gap-2">
-          <Button onClick={handleSubmit} variant="primary">
+          <Button onClick={handleSubmit} variant="default">
             Save
           </Button>
           <div>
             <DialogClose asChild>
-              <Button variant="outline" onClick={() => setErrors({})}>
+              <Button variant="outline" onClick={handleCancel}>
                 Cancel
               </Button>
             </DialogClose>
